@@ -1,23 +1,18 @@
-/* eslint-disable prettier/prettier */
-import { View, Text, StatusBar } from 'react-native';
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Home from '../views/Home';
+import Home from './src/views/Home'; // Adjust the path as needed
+import ProductCard from './src/views/ProductCard'; // Adjust the path as needed
 
 const Stack = createNativeStackNavigator();
 
-export default function Route() {
+const Route = () => {
   return (
-    <>
-      <StatusBar backgroundColor={'blue'} />
-      <Stack.Navigator
-        screenOptions={{ headerShown: false }}>
-        <Stack.Screen
-          name="Home"
-          component={Home}
-        />
-        {/* Add other screens here */}
-      </Stack.Navigator>
-    </>
+    <Stack.Navigator initialRouteName="ProductCard">
+      <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+      <Stack.Screen name="ProductCard" component={ProductCard} options={{ headerShown: false }} />
+      {/* Add other screens here */}
+    </Stack.Navigator>
   );
-}
+};
+
+export default Route;

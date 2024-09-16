@@ -1,63 +1,91 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Text, Image, TouchableOpacity, Dimensions, Alert } from 'react-native';
 import CategoriesList from './components/CategoriesList';
 import Header from './components/Header';
+import { getSubCategories } from '../utils/config';
+
+// Get screen width
+const { width: screenWidth } = Dimensions.get('window');
+
+// Calculate card width based on screen width and 4 columns (adjusted for margins)
+const cardMargin = 0; // Margin around each card
+const numberOfColumns = 4; // Number of cards per row
+const cardWidth = (screenWidth - (cardMargin * (numberOfColumns + 1))) / numberOfColumns; // Adjust for margins
 
 const Home = () => {
+  const [selectedCategory, setSelectedCategory] = useState(null); // State to store selected category
+  const [subCategoriesData, setSubCategoriesData] = useState([]); // State for sub-categories data
+  const [loading, setLoading] = useState(false); // Loading state
+  const [error, setError] = useState(null); // Error state
+
+  useEffect(() => {
+    if (selectedCategory) {
+      fetchSubCategories();
+    }
+  }, [selectedCategory]);
+
+  const fetchSubCategories = async () => {
+    setLoading(true);
+    try {
+      const { status, data } = await getSubCategories();
+      if (status === 200) {
+        setSubCategoriesData(data); // Assuming data is directly the list of sub-categories
+      } else {
+        throw new Error(`Unexpected status code: ${status}`);
+      }
+    } catch (error) {
+      setError(error.message);
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  console.log('selectedCategory',selectedCategory)
+  // Group sub-categories by their category_name
+  const groupedSubCategories = subCategoriesData.reduce((acc, subCategory) => {
+    if (!acc[subCategory.category_name]) {
+      acc[subCategory.category_name] = [];
+    }
+    acc[subCategory.category_name].push(subCategory);
+    return acc;
+  }, {});
+
+  // Create a combined data array for rendering
+  const categories = Object.keys(groupedSubCategories);
+
+  const renderCategory = (categoryName) => {
+    const categoryItems = groupedSubCategories[categoryName];
+    return (
+      <View key={categoryName} style={styles.categoryWrapper}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.categoryHeading}>{categoryName}</Text>
+        </View>
+        <View style={styles.cardsContainer}>
+          {categoryItems.map((item, index) => (
+            <TouchableOpacity key={index} style={[styles.card, { width: cardWidth }]}>
+              <Image source={{ uri: item.sub_category_img }} style={styles.cardImage} />
+              <Text style={styles.cardText}>{item.sub_category_name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Header />
-      {/* Custom Header */}
-
-      <View style={{ marginBottom: 10 }}>
-        <CategoriesList />
+      <View style={styles.categoryContainer}>
+        <CategoriesList onCategorySelect={setSelectedCategory} />
       </View>
-      
-      {/* ScrollView for Content */}
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Product Cards */}
-        <View style={styles.card}>
-          <Image style={styles.cardImage} source={{ uri: 'https://via.placeholder.com/150' }} />
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>Fresh Fruits</Text>
-            <Text style={styles.cardParagraph}>Get the freshest fruits delivered to your door.</Text>
-          </View>
-          <TouchableOpacity style={styles.cardButton} onPress={() => {}}>
-            <Icon name="cart" size={20} color="#fff" />
-            <Text style={styles.cardButtonText}>Buy Now</Text>
-          </TouchableOpacity>
-        </View>
 
-        <View style={styles.card}>
-          <Image style={styles.cardImage} source={{ uri: 'https://via.placeholder.com/150' }} />
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>Organic Vegetables</Text>
-            <Text style={styles.cardParagraph}>Healthy and organic vegetables just for you.</Text>
-          </View>
-          <TouchableOpacity style={styles.cardButton} onPress={() => {}}>
-            <Icon name="cart" size={20} color="#fff" />
-            <Text style={styles.cardButtonText}>Buy Now</Text>
-          </TouchableOpacity>
-        </View>
-
+      <ScrollView contentContainerStyle={styles.scrollViewContainer} showsVerticalScrollIndicator={false}>
+        {categories.map(renderCategory)}
       </ScrollView>
 
-      {/* Bottom Action Buttons */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.bottomButton} onPress={() => {}}>
-          <Icon name="home" size={20} color="#000" />
-          <Text>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomButton} onPress={() => {}}>
-          <Icon name="shopping" size={20} color="#000" />
-          <Text>Shop</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomButton} onPress={() => {}}>
-          <Icon name="account" size={20} color="#000" />
-          <Text>Profile</Text>
-        </TouchableOpacity>
-      </View>
+      {loading && <Text style={styles.loadingText}>Loading...</Text>}
+      {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 };
@@ -65,57 +93,59 @@ const Home = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContainer: {
-    padding: 10,
-  },
-  card: {
-    marginVertical: 10,
-    borderRadius: 10,
     backgroundColor: '#fff',
-    elevation: 4, // Shadow for Android
-    overflow: 'hidden',
   },
-  cardImage: {
-    width: '100%',
-    height: 150,
+  categoryContainer: {
+    marginBottom: 10,
+    borderColor: 'gray',
+    borderWidth: 0.5,
   },
-  cardContent: {
-    padding: 10,
+  categoryWrapper: {
+    marginBottom: 20,
   },
-  cardTitle: {
+  headerContainer: {
+    alignItems: 'flex-start', // Align header to the right
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  categoryHeading: {
     fontSize: 18,
     fontWeight: 'bold',
   },
-  cardParagraph: {
-    fontSize: 14,
-    color: '#666',
-  },
-  cardButton: {
+  cardsContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#1476bc',
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderColor: '#ddd',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    paddingHorizontal: cardMargin,
   },
-  cardButtonText: {
-    color: '#fff',
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  bottomBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 10,
+  card: {
     backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderColor: '#ddd',
-  },
-  bottomButton: {
+    margin: cardMargin,
+    paddingVertical: 5,
     alignItems: 'center',
+  },
+  cardImage: {
+    width: '100%',
+    height: 60, // Adjust height for responsiveness
+    marginBottom: 5,
+    resizeMode: 'contain',
+    borderRadius:50
+  },
+  cardText: {
+    fontSize: 12, // Smaller font size for responsiveness
+    textAlign: 'center',
+  },
+  scrollViewContainer: {
+    paddingHorizontal: cardMargin, // Adjust container padding
+  },
+  loadingText: {
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+  errorText: {
+    textAlign: 'center',
+    color: 'red',
+    marginVertical: 10,
   },
 });
 

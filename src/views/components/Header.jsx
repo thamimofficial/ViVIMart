@@ -1,14 +1,13 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import { Badge } from 'react-native-paper';
+import Ionicons from 'react-native-vector-icons/Ionicons'; // Importing Ionicons
 
 const Header = () => {
     return (
         <View style={styles.headerContainer}>
             <View style={styles.iconContainer}>
                 <TouchableOpacity>
-                    <Icon name="search" size={24} color="#fff" />
+                    <Ionicons name="search-outline" size={24} color="#fff" />
                 </TouchableOpacity>
                 <TextInput
                     style={styles.searchInput}
@@ -18,17 +17,13 @@ const Header = () => {
             </View>
             <View style={styles.rightIconsContainer}>
                 <TouchableOpacity style={styles.iconWrapper}>
-                    <Badge
-                        visible={true}
-                        size={20}
-                        style={styles.badge}
-                    >
-                        3
-                    </Badge>
-                    <Icon name="shopping-cart" size={24} color="#fff" />
+                    <View style={styles.badge}>
+                        <Text style={styles.badgeText}>3</Text>
+                    </View>
+                    <Ionicons name="cart-outline" size={24} color="#fff" />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.iconWrapper}>
-                    <Icon name="person" size={24} color="#fff" />
+                    <Ionicons name="person-outline" size={24} color="#fff" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -41,9 +36,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#1476bc', // Header background color
         paddingHorizontal: 10,
-        paddingVertical: 5,
+        paddingVertical: 15,
         justifyContent: 'space-between',
-        paddingVertical:15
     },
     iconContainer: {
         flexDirection: 'row',
@@ -70,8 +64,18 @@ const styles = StyleSheet.create({
     badge: {
         position: 'absolute',
         top: -5,
-        right: -5,
+        right: -10,
         backgroundColor: '#f00', // Red badge color
+        borderRadius: 10,
+        width: 20,
+        height: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    badgeText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: 'bold',
     },
 });
 
