@@ -3,19 +3,20 @@ import { View, Image, StyleSheet, TouchableOpacity, Dimensions, ActivityIndicato
 import { getSubSubCategories } from '../../utils/config';
 
 const SideBar = ({ onCategorySelect }) => {
-  const [selectedCategory, setSelectedCategory] = useState(null); // No default until data is fetched
-  const [sidebarData, setSidebarData] = useState([]); // State for fetched sidebar data
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [sidebarData, setSidebarData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Fetch sub-sub-categories when the component mounts
   useEffect(() => {
     const fetchData = async () => {
+      
       try {
         const { status, data } = await getSubSubCategories();
         if (status === 200 && data.length > 0) {
           setSidebarData(data);
-          setSelectedCategory(data[0].sub_sub_category_id); // Set default to first item
+          setSelectedCategory(data[0].sub_sub_category_id); // Automatically select the first category
+          onCategorySelect(data[0]); // Notify parent component with the first category
         } else if (status === 200 && data.length === 0) {
           setError('No categories available');
         } else {
@@ -45,7 +46,6 @@ const SideBar = ({ onCategorySelect }) => {
     return <View style={styles.errorContainer}><Text>{error}</Text></View>;
   }
 
-  // If no data, return null (don't render the sidebar)
   if (sidebarData.length === 0) {
     return null;
   }
@@ -72,7 +72,7 @@ const SideBar = ({ onCategorySelect }) => {
 };
 
 const { width } = Dimensions.get('window');
-const sidebarWidth = width * 0.15; // Adjust this value if necessary
+const sidebarWidth = width * 0.15;
 
 const styles = StyleSheet.create({
   sidebar: {
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   },
   selectedImage: {
     borderWidth: 2,
-    borderColor: '#007BFF', // Highlight color for selected image
+    borderColor: '#007BFF',
   },
   image: {
     width: '100%',
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   errorContainer: {
-    position:'absolute'
+    position: 'absolute',
   },
 });
 

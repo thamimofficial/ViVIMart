@@ -60,37 +60,37 @@ export const getSubCategories = async () => {
 };
 
 
-export const getCategoriesProduct = async (category) => {
-  const encodedCategory = encodeURIComponent(category); // Encode the category to handle special characters like '&'
-  const url = `https://backend.vivimart.in/api/products/category/${encodedCategory}`; // Updated endpoint
+// export const getCategoriesProduct = async (category) => {
+//   const encodedCategory = encodeURIComponent(category); // Encode the category to handle special characters like '&'
+//   const url = `https://backend.vivimart.in/api/products/category/${encodedCategory}`; // Updated endpoint
 
-  try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        // Add any other required headers here if needed, such as authorization tokens
-      },
-    });
+//   try {
+//     const response = await fetch(url, {
+//       method: 'GET',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         // Add any other required headers here if needed, such as authorization tokens
+//       },
+//     });
 
-    const responseData = await response.json();
+//     const responseData = await response.json();
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
-    }
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+//     }
 
-    // Return both status code and response data
-    return {
-      status: response.status,
-      data: responseData,
-    };
-  } catch (error) {
-    console.error('Categories API error:', error.message);
-    // Re-throw the error if needed
-    throw error;
-  }
-};
+//     // Return both status code and response data
+//     return {
+//       status: response.status,
+//       data: responseData,
+//     };
+//   } catch (error) {
+//     console.error('Categories API error:', error.message);
+//     // Re-throw the error if needed
+//     throw error;
+//   }
+// };
 
 
 
@@ -119,6 +119,40 @@ export const getSubSubCategories = async () => {
   } catch (error) {
     console.error('Categories API error:', error.message);
     // Re-throw the error with status if needed
+    throw error;
+  }
+};
+
+
+
+export const getSubSubCategoriesProduct = async (category) => {
+  const encodedCategory = encodeURIComponent(category); // Encode the category to handle special characters like '&'
+  const url = `https://backend.vivimart.in/api/products/subsubcategory/${encodedCategory}`; // Updated endpoint
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // Add any other required headers here if needed, such as authorization tokens
+      },
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+    }
+
+    // Return both status code and response data
+    return {
+      status: response.status,
+      data: responseData,
+    };
+  } catch (error) {
+    console.error('Categories API error:', error.message);
+    // Re-throw the error if needed
     throw error;
   }
 };

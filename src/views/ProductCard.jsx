@@ -1,81 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import PropTypes from 'prop-types';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Header from './components/Header';
 import SideBar from './components/SideBar';
+import { getSubSubCategoriesProduct } from '../utils/config';
 
 const { width } = Dimensions.get('window');
 const sidebarWidth = width * 0.1; // 10% of the screen width
 
 const ProductCard = () => {
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const route = useRoute();
+  const { productDetails } = route.params;
+  const [selectedCategory, setSelectedCategory] = useState(productDetails.Sub_Categories);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleCategorySelect = (category) => {
-    setSelectedCategory(category);
-    console.log('selected sub category',selectedCategory)
+  const handleCategorySelect = async (category) => {
+    if (category && category.sub_sub_category_name) {
+      setSelectedCategory(category);
+      console.log('Selected sub category:', category);
+  
+      // Fetch products for the selected category
+      await fetchProducts(category);
+    } else {
+      console.error('Invalid category selected:', category);
+    }
+  };
+  const fetchProducts = async (category) => {
+    try {
+      setLoading(true);
+      const response = await getSubSubCategoriesProduct(category.sub_sub_category_name);
+      if (response.status === 200) {
+        setProducts(response.data); // Assuming response.data contains the product list
+        console.log('sub sub category products:', response.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const products = [
-    {
-      Product_id: 1121,
-      Categories: "Fruits & Vegetables",
-      Sub_Categories: "Fresh Fruits",
-      Sub_Sub_Categories: "Bananas",
-      Brand_name: "Fresho ",
-      Product_name: "Banana Elaichi (Yellaki)",
-      Prodouct_img_0: "https://ik.imagekit.io/efsdltq0e/product_images/product_1720781388068_Prodouct_img_0_f0RiW7lCHd",
-      Weight: "1.00",
-      MRP: "250.00",
-      sell_price: "225.00",
-      offer: "62.50",
-      delivery_option: "Standard Delivery",
-    },
-    {
-      Product_id: 1122,
-      Categories: "Fruits & Vegetables",
-      Sub_Categories: "Fresh Fruits",
-      Sub_Sub_Categories: "Bananas",
-      Brand_name: "Fresho",
-      Product_name: "Banana Red (Sevvalai)",
-      Prodouct_img_0: "https://ik.imagekit.io/efsdltq0e/product_images/product_1720781399710_Prodouct_img_0_5HulxFeEQ",
-      Weight: "1.00",
-      MRP: "250.00",
-      sell_price: "225.00",
-      offer: "62.50",
-      delivery_option: "Standard Delivery",
-    },
-    {
-      Product_id: 1123,
-      Categories: "Fruits & Vegetables",
-      Sub_Categories: "Fresh Fruits",
-      Sub_Sub_Categories: "Bananas",
-      Brand_name: "Fresho",
-      Product_name: "Banana Robusta (Morris)",
-      Prodouct_img_0: "https://ik.imagekit.io/efsdltq0e/product_images/product_1720781411440_Prodouct_img_0_Xk3jSHL89s",
-      Weight: "1.00",
-      MRP: "250.00",
-      sell_price: "225.00",
-      offer: "62.50",
-      delivery_option: "Standard Delivery",
-    },
-    {
-      Product_id: 1124,
-      Categories: "Fruits & Vegetables",
-      Sub_Categories: "Fresh Fruits",
-      Sub_Sub_Categories: "Bananas",
-      Brand_name: "Fresho",
-      Product_name: "Banana Nenthiran",
-      Prodouct_img_0: "https://ik.imagekit.io/efsdltq0e/product_images/product_1720781422944_Prodouct_img_0_vHce3x8qXT",
-      Weight: "1.00",
-      MRP: "250.00",
-      sell_price: "225.00",
-      offer: "62.50",
-      delivery_option: "Standard Delivery",
-    }
-  ];
+  useEffect(() => {
+    fetchProducts(selectedCategory);
+  }, []);
+
+  const SkeletonLoader = () => (
+    <View style={styles.skeletonContainer}>
+      {Array.from({ length: 4 }).map((_, index) => (
+        <View key={index} style={styles.skeletonCard}>
+          <View style={styles.skeletonImage} />
+          <View style={styles.skeletonText} />
+          <View style={styles.skeletonText} />
+        </View>
+      ))}
+    </View>
+  );
 
   const SubProduct = () => {
+    if (loading) {
+      return <SkeletonLoader />; // Show skeleton loader
+    }
+
     return (
       <View style={styles.subProductContainer}>
         {products.map((product) => (
@@ -96,15 +83,12 @@ const ProductCard = () => {
 
     return (
       <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('SingleProduct', { product })}>
-        
         <Text style={styles.productOffer}>${product.offer}</Text>
         <Image source={{ uri: product.Prodouct_img_0 }} style={styles.image} />
-        
         <View style={styles.details}>
           <Text style={styles.productName} numberOfLines={1}>{product.Product_name}</Text>
           <Text style={styles.productPrice}>${product.sell_price}</Text>
           <Text style={styles.deliveryOption}>{product.delivery_option}</Text>
-
           {quantity === 0 ? (
             <TouchableOpacity style={styles.addButton} onPress={incrementQuantity}>
               <Text style={styles.addButtonText}>Add</Text>
@@ -141,7 +125,7 @@ const ProductCard = () => {
       <View style={styles.mainContent}>
         <SideBar onCategorySelect={handleCategorySelect} />
         <ScrollView style={[styles.scrollView, { marginLeft: 0 }]}>
-          <SubProduct selectedCategory={selectedCategory} />
+          <SubProduct />
         </ScrollView>
       </View>
     </View>
@@ -202,14 +186,14 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#dc3545',
     marginBottom: 5,
-    backgroundColor:"green",
-    color:'white',
-    fontWeight:'700',
-    position:'absolute',
-    zIndex:1,
-    borderRadius:5,
-    padding:3,
-    margin:2
+    backgroundColor: "green",
+    color: 'white',
+    fontWeight: '700',
+    position: 'absolute',
+    zIndex: 1,
+    borderRadius: 5,
+    padding: 3,
+    margin: 2,
   },
   deliveryOption: {
     fontSize: 10,
@@ -238,7 +222,9 @@ const styles = StyleSheet.create({
   },
   quantityButton: {
     backgroundColor: '#007bff',
-    padding: 10,
+    paddingVertical: 5,
+    paddingHorizontal:10,
+    
     borderRadius: 5,
   },
   quantityButtonText: {
@@ -250,6 +236,34 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  skeletonContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+  },
+  skeletonCard: {
+    backgroundColor: '#e0e0e0',
+    borderRadius: 8,
+    width: '48%',
+    height: 150,
+    marginBottom: 15,
+    marginHorizontal: '1%',
+  },
+  skeletonImage: {
+    backgroundColor: '#c0c0c0',
+    width: '100%',
+    height: 120,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  skeletonText: {
+    backgroundColor: '#c0c0c0',
+    height: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+    width: '80%',
   },
 });
 
