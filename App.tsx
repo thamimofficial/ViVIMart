@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Home from './src/views/Home'; // Adjust the path as needed
 import ProductCard from './src/views/ProductCard';
-import messaging from '@react-native-firebase/messaging';
+import SingleProduct from './src/views/SingleProduct';
 
 const Stack = createNativeStackNavigator();
 
@@ -51,6 +51,7 @@ export default function App() {
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen name="Home" component={Home} options={{headerShown: false}} />
           <Stack.Screen name="ProductCard" component={ProductCard} options={{headerShown: false}} />
+          <Stack.Screen name="SingleProduct" component={SingleProduct} options={{headerShown: false}} />
           {/* Add other screens here */}
         </Stack.Navigator>
       </NavigationContainer>

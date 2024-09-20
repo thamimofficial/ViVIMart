@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "402607754115",
+    "project_id": "vivimart-563d5",
+    "storage_bucket": "vivimart-563d5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:402607754115:android:9c5ed513308a44ae5d44b6",
+        "android_client_info": {
+          "package_name": "com.vivimart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADO_8ccBGWv9pl482u2cS0M7n_8LLaYyg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 15,
         justifyContent: 'space-between',
+        zIndex:1
     },
     iconContainer: {
         flexDirection: 'row',
